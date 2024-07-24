@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:voice_assistance_app/feature_box.dart';
 import 'package:voice_assistance_app/pallete.dart';
 
@@ -10,13 +12,49 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final speechtoText = SpeechToText();
+  String lastWords = '';
+  @override
+  void initState() {
+    super.initState();
+
+    initSpeechTotext();
+  }
+
+  Future<void> initSpeechTotext() async {
+    await speechtoText.initialize();
+    setState(() {});
+  }
+
+  Future<void> startListening() async {
+    await speechtoText.listen(onResult: _onSpeechResult);
+    setState(() {});
+  }
+
+  Future<void> stopListening() async {
+    await speechtoText.stop();
+    setState(() {});
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      lastWords = result.recognizedWords;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    speechtoText.stop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("SKAI"),
+        title: const Text("SKAI"),
         centerTitle: true,
-        leading: Icon(Icons.menu),
+        leading: const Icon(Icons.menu),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -30,7 +68,7 @@ class _HomePageState extends State<HomePage> {
                     height: 120,
                     width: 120,
                     margin: const EdgeInsets.only(top: 4),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Pallete.assistantCircleColor,
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -48,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                   child: Container(
                     height: 120,
                     width: 120,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         image: AssetImage('assets/images/assiatanceImg.jpeg'),
@@ -68,7 +106,8 @@ class _HomePageState extends State<HomePage> {
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              margin: const EdgeInsets.symmetric(horizontal: 40).copyWith(top: 30),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 40).copyWith(top: 30),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -98,41 +137,59 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Container(
               alignment: Alignment.bottomLeft,
               margin: const EdgeInsets.only(left: 20),
-              child: const Text("Here are few features :",
-              
-                  style: TextStyle(
-                    fontFamily: 'Cera Pro',
-                    fontSize: 18,
-                    color: Pallete.mainFontColor,
-                    fontWeight: FontWeight.w500,
-                  ),),
+              child: const Text(
+                "Here are few features :",
+                style: TextStyle(
+                  fontFamily: 'Cera Pro',
+                  fontSize: 18,
+                  color: Pallete.mainFontColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-        
-            Column(
+            const Column(
               children: [
-                FeatureBox(color: Pallete.firstSuggestionBoxColor,
-                headerText: "ChatGPT",
-                descriptionText: "Elevate your organization and stay effortlessly informed with ChatGPT",),
-                FeatureBox(color: Pallete.secondSuggestionBoxColor,
-                headerText: "Dall-E",
-                descriptionText: "Unleash your creativity and bring your ideas to life with DALL·E",),
-                FeatureBox(color: Pallete.thirdSuggestionBoxColor,
-                headerText: "Smart Voice Assistance",
-                descriptionText: "Smart Voice Assistance. A helpful assistant for managing tasks and finding information quickly.",)
+                FeatureBox(
+                  color: Pallete.firstSuggestionBoxColor,
+                  headerText: "ChatGPT",
+                  descriptionText:
+                      "Elevate your organization and stay effortlessly informed with ChatGPT",
+                ),
+                FeatureBox(
+                  color: Pallete.secondSuggestionBoxColor,
+                  headerText: "Dall-E",
+                  descriptionText:
+                      "Unleash your creativity and bring your ideas to life with DALL·E",
+                ),
+                FeatureBox(
+                  color: Pallete.thirdSuggestionBoxColor,
+                  headerText: "Smart Voice Assistance",
+                  descriptionText:
+                      "Smart Voice Assistance. A helpful assistant for managing tasks and finding information quickly.",
+                )
               ],
             )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){},
+        onPressed: () async {
+          if (await speechtoText.hasPermission && speechtoText.isNotListening) {
+            await startListening();
+          } else if (speechtoText.isListening) {
+            await stopListening();
+          } else {
+            initSpeechTotext();
+          }
+        },
         child: const Icon(Icons.mic_none_rounded),
         backgroundColor: Pallete.whiteColor,
-
       ),
     );
   }
