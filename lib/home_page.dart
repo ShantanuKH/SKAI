@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final speechtoText = SpeechToText();
+  final SpeechToText speechToText = SpeechToText();
   final FlutterTts flutterTts = FlutterTts();
 
   String lastWords = '';
@@ -25,8 +25,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
-    initSpeechTotext();
+    initSpeechToText();
     initTextToSpeech();
   }
 
@@ -34,18 +33,18 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
-  Future<void> initSpeechTotext() async {
-    await speechtoText.initialize();
+  Future<void> initSpeechToText() async {
+    await speechToText.initialize();
     setState(() {});
   }
 
   Future<void> startListening() async {
-    await speechtoText.listen(onResult: _onSpeechResult);
+    await speechToText.listen(onResult: _onSpeechResult);
     setState(() {});
   }
 
   Future<void> stopListening() async {
-    await speechtoText.stop();
+    await speechToText.stop();
     setState(() {});
   }
 
@@ -58,7 +57,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     super.dispose();
-    speechtoText.stop();
+    speechToText.stop();
     flutterTts.stop();
   }
 
@@ -108,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: AssetImage('assets/images/assiatanceImg.jpeg'),
+                          image: AssetImage('assets/images/SKAI.jpeg'),
                           fit: BoxFit.cover,
                         ),
                         boxShadow: [
@@ -123,50 +122,78 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                margin: const EdgeInsets.symmetric(horizontal: 40)
-                    .copyWith(top: 30),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                  border: Border.all(
-                    color: Pallete.borderColor,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: Offset(0, 5),
+              Visibility(
+                visible: generatedImageUrl == null,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  margin: const EdgeInsets.symmetric(horizontal: 40)
+                      .copyWith(top: 30),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(20),
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
                     ),
-                  ],
-                ),
-                child: Text(
-                  generatedContent==null?"Hello! What can I do for you?":generatedContent! ,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Cera Pro',
-                    fontSize:generatedContent==null? 25: 18,
-                    color: Pallete.mainFontColor,
-                    fontWeight: FontWeight.w600,
+                    border: Border.all(
+                      color: Pallete.borderColor,
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    generatedContent == null
+                        ? "Hello! What can I do for you?"
+                        : generatedContent!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Cera Pro',
+                      fontSize: generatedContent == null ? 25 : 18,
+                      color: Pallete.mainFontColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
+              if (generatedImageUrl != null)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 20.0),
+                  height: 250,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
+                      generatedImageUrl!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               Visibility(
-                visible: generatedContent==null,
+                visible: generatedContent == null && generatedImageUrl == null,
                 child: Container(
                   alignment: Alignment.bottomLeft,
                   margin: const EdgeInsets.only(left: 20),
                   child: const Text(
-                    "Here are few features :",
+                    "Here are a few features:",
                     style: TextStyle(
                       fontFamily: 'Cera Pro',
                       fontSize: 18,
@@ -176,9 +203,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-               Visibility(
-                visible: generatedContent==null,
-                 child: Column(
+              Visibility(
+                visible: generatedContent == null && generatedImageUrl == null,
+                child: Column(
                   children: [
                     FeatureBox(
                       color: Pallete.firstSuggestionBoxColor,
@@ -199,36 +226,30 @@ class _HomePageState extends State<HomePage> {
                           "Smart Voice Assistance. A helpful assistant for managing tasks and finding information quickly.",
                     )
                   ],
-                               ),
-               )
+                ),
+              )
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            if (await speechtoText.hasPermission &&
-                speechtoText.isNotListening) {
+            if (await speechToText.hasPermission && !speechToText.isListening) {
               await startListening();
-            } else if (speechtoText.isListening) {
+            } else if (speechToText.isListening) {
               final speech = await openAIService.isArtPromptAPI(lastWords);
               if (speech.contains('https')) {
                 generatedImageUrl = speech;
                 generatedContent = null;
-                setState(() {
-                  
-                });
+                setState(() {});
               } else {
                 generatedImageUrl = null;
                 generatedContent = speech;
-                setState(() {
-                  
-                });
+                setState(() {});
                 await systemSpeak(speech);
               }
-              await systemSpeak(speech);
               await stopListening();
             } else {
-              initSpeechTotext();
+              initSpeechToText();
             }
           },
           child: const Icon(Icons.mic_none_rounded),
