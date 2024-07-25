@@ -14,16 +14,18 @@ class OpenaiService {
           'Authorization': 'Bearer $OPENaIAPIKEY',
         },
         body: jsonEncode({
-          'model': 'gpt-4-mini-2024-07-18',
+          'model': 'gpt-3.5-turbo',
           'messages': [
             {
               'role': 'user',
-              'content':
-                  'Does this message want to generate an AI picture, image, art or anything similar? $prompt. Simply answer with YES or NO',
+              'content': 'Does this message want to generate an AI picture, image, art or anything similar? $prompt. Simply answer with YES or NO',
             }
           ],
         }),
       );
+
+      print('isArtPromptAPI status code: ${res.statusCode}');
+      print('isArtPromptAPI response body: ${res.body}');
 
       if (res.statusCode == 200) {
         String content = jsonDecode(res.body)['choices'][0]['message']['content'].trim();
@@ -37,7 +39,7 @@ class OpenaiService {
         return 'Internal Error: ${res.statusCode}';
       }
     } catch (e) {
-      return e.toString();
+      return 'Error: $e';
     }
   }
 
@@ -51,10 +53,13 @@ class OpenaiService {
           'Authorization': 'Bearer $OPENaIAPIKEY',
         },
         body: jsonEncode({
-          'model': 'gpt-4-mini-2024-07-18',
+          'model': 'gpt-3.5-turbo', 
           'messages': messages,
         }),
       );
+
+      print('chatGptAPI status code: ${res.statusCode}');
+      print('chatGptAPI response body: ${res.body}');
 
       if (res.statusCode == 200) {
         String content = jsonDecode(res.body)['choices'][0]['message']['content'].trim();
@@ -64,7 +69,7 @@ class OpenaiService {
         return 'Internal Error: ${res.statusCode}';
       }
     } catch (e) {
-      return e.toString();
+      return 'Error: $e';
     }
   }
 
@@ -83,6 +88,9 @@ class OpenaiService {
         }),
       );
 
+      print('dalEAPI status code: ${res.statusCode}');
+      print('dalEAPI response body: ${res.body}');
+
       if (res.statusCode == 200) {
         String imageUrl = jsonDecode(res.body)['data'][0]['url'];
         return imageUrl;
@@ -90,7 +98,7 @@ class OpenaiService {
         return 'Internal Error: ${res.statusCode}';
       }
     } catch (e) {
-      return e.toString();
+      return 'Error: $e';
     }
   }
 }

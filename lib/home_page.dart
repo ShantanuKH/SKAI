@@ -13,7 +13,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   final SpeechToText speechToText = SpeechToText();
   final FlutterTts flutterTts = FlutterTts();
 
@@ -22,14 +23,43 @@ class _HomePageState extends State<HomePage> {
   String? generatedContent;
   String? generatedImageUrl;
 
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
     initSpeechToText();
     initTextToSpeech();
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _animationController.forward();
   }
 
   Future<void> initTextToSpeech() async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+    flutterTts.setStartHandler(() {
+      print("Speech started");
+    });
+
+    flutterTts.setCompletionHandler(() {
+      print("Speech completed");
+    });
+
+    flutterTts.setErrorHandler((error) {
+      print("Error occurred: $error");
+    });
+
     setState(() {});
   }
 
@@ -56,9 +86,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    super.dispose();
     speechToText.stop();
     flutterTts.stop();
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> systemSpeak(String content) async {
@@ -70,7 +101,10 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("SKAI"),
+          title: FadeTransition(
+            opacity: _animation,
+            child: const Text("SKAI"),
+          ),
           centerTitle: true,
           leading: const Icon(Icons.menu),
         ),
@@ -78,85 +112,91 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Center(
-                    child: Container(
-                      height: 120,
-                      width: 120,
-                      margin: const EdgeInsets.only(top: 4),
-                      decoration: const BoxDecoration(
-                        color: Pallete.assistantCircleColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Container(
-                      height: 120,
-                      width: 120,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/SKAI.jpeg'),
-                          fit: BoxFit.cover,
+              FadeTransition(
+                opacity: _animation,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Center(
+                      child: Container(
+                        height: 120,
+                        width: 120,
+                        margin: const EdgeInsets.only(top: 4),
+                        decoration: const BoxDecoration(
+                          color: Pallete.assistantCircleColor,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
                       ),
                     ),
-                  ),
-                ],
+                    Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        height: 120,
+                        width: 120,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/SKAI.jpeg'),
+                            fit: BoxFit.cover,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Visibility(
                 visible: generatedImageUrl == null,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  margin: const EdgeInsets.symmetric(horizontal: 40)
-                      .copyWith(top: 30),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                    border: Border.all(
-                      color: Pallete.borderColor,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
+                child: FadeTransition(
+                  opacity: _animation,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
+                    margin: const EdgeInsets.symmetric(horizontal: 40)
+                        .copyWith(top: 30),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(20),
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    generatedContent == null
-                        ? "Hello! What can I do for you?"
-                        : generatedContent!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Cera Pro',
-                      fontSize: generatedContent == null ? 25 : 18,
-                      color: Pallete.mainFontColor,
-                      fontWeight: FontWeight.w600,
+                      border: Border.all(
+                        color: Pallete.borderColor,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      generatedContent == null
+                          ? "Hello! What can I do for you?"
+                          : generatedContent!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Cera Pro',
+                        fontSize: generatedContent == null ? 25 : 18,
+                        color: Pallete.mainFontColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -165,40 +205,46 @@ class _HomePageState extends State<HomePage> {
                 height: 20,
               ),
               if (generatedImageUrl != null)
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 20.0),
-                  height: 250,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
+                FadeTransition(
+                  opacity: _animation,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 20.0),
+                    height: 250,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        generatedImageUrl!,
+                        fit: BoxFit.cover,
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      generatedImageUrl!,
-                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
               Visibility(
                 visible: generatedContent == null && generatedImageUrl == null,
-                child: Container(
-                  alignment: Alignment.bottomLeft,
-                  margin: const EdgeInsets.only(left: 20),
-                  child: const Text(
-                    "Here are a few features:",
-                    style: TextStyle(
-                      fontFamily: 'Cera Pro',
-                      fontSize: 18,
-                      color: Pallete.mainFontColor,
-                      fontWeight: FontWeight.w500,
+                child: FadeTransition(
+                  opacity: _animation,
+                  child: Container(
+                    alignment: Alignment.bottomLeft,
+                    margin: const EdgeInsets.only(left: 20),
+                    child: const Text(
+                      "Here are a few features:",
+                      style: TextStyle(
+                        fontFamily: 'Cera Pro',
+                        fontSize: 18,
+                        color: Pallete.mainFontColor,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -207,24 +253,48 @@ class _HomePageState extends State<HomePage> {
                 visible: generatedContent == null && generatedImageUrl == null,
                 child: Column(
                   children: [
-                    FeatureBox(
-                      color: Pallete.firstSuggestionBoxColor,
-                      headerText: "ChatGPT",
-                      descriptionText:
-                          "Elevate your organization and stay effortlessly informed with ChatGPT",
+                    SlideTransition(
+                      position: _animation.drive(
+                        Tween<Offset>(
+                          begin: const Offset(0.0, 0.2),
+                          end: Offset.zero,
+                        ),
+                      ),
+                      child: FeatureBox(
+                        color: Pallete.firstSuggestionBoxColor,
+                        headerText: "ChatGPT",
+                        descriptionText:
+                            "Elevate your organization and stay effortlessly informed with ChatGPT",
+                      ),
                     ),
-                    FeatureBox(
-                      color: Pallete.secondSuggestionBoxColor,
-                      headerText: "Dall-E",
-                      descriptionText:
-                          "Unleash your creativity and bring your ideas to life with DALL·E",
+                    SlideTransition(
+                      position: _animation.drive(
+                        Tween<Offset>(
+                          begin: const Offset(0.0, 0.2),
+                          end: Offset.zero,
+                        ),
+                      ),
+                      child: FeatureBox(
+                        color: Pallete.secondSuggestionBoxColor,
+                        headerText: "Dall-E",
+                        descriptionText:
+                            "Unleash your creativity and bring your ideas to life with DALL·E",
+                      ),
                     ),
-                    FeatureBox(
-                      color: Pallete.thirdSuggestionBoxColor,
-                      headerText: "Smart Voice Assistance",
-                      descriptionText:
-                          "Smart Voice Assistance. A helpful assistant for managing tasks and finding information quickly.",
-                    )
+                    SlideTransition(
+                      position: _animation.drive(
+                        Tween<Offset>(
+                          begin: const Offset(0.0, 0.2),
+                          end: Offset.zero,
+                        ),
+                      ),
+                      child: FeatureBox(
+                        color: Pallete.thirdSuggestionBoxColor,
+                        headerText: "Smart Voice Assistance",
+                        descriptionText:
+                            "Smart Voice Assistance. A helpful assistant for managing tasks and finding information quickly.",
+                      ),
+                    ),
                   ],
                 ),
               )
@@ -252,8 +322,9 @@ class _HomePageState extends State<HomePage> {
               initSpeechToText();
             }
           },
-          child: const Icon(Icons.mic_none_rounded),
-          backgroundColor: Pallete.whiteColor,
+          child: Icon(
+            speechToText.isListening ? Icons.stop : Icons.mic_none_rounded,
+          ),
         ),
       ),
     );
