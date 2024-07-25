@@ -19,6 +19,8 @@ class _HomePageState extends State<HomePage> {
 
   String lastWords = '';
   final OpenaiService openAIService = OpenaiService();
+  String? generatedContent;
+  String? generatedImageUrl;
 
   @override
   void initState() {
@@ -145,11 +147,11 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 child: Text(
-                  "Hello! What can I do for you?",
+                  generatedContent==null?"Hello! What can I do for you?":generatedContent! ,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Cera Pro',
-                    fontSize: 18,
+                    fontSize:generatedContent==null? 25: 18,
                     color: Pallete.mainFontColor,
                     fontWeight: FontWeight.w600,
                   ),
@@ -158,41 +160,47 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 height: 20,
               ),
-              Container(
-                alignment: Alignment.bottomLeft,
-                margin: const EdgeInsets.only(left: 20),
-                child: const Text(
-                  "Here are few features :",
-                  style: TextStyle(
-                    fontFamily: 'Cera Pro',
-                    fontSize: 18,
-                    color: Pallete.mainFontColor,
-                    fontWeight: FontWeight.w500,
+              Visibility(
+                visible: generatedContent==null,
+                child: Container(
+                  alignment: Alignment.bottomLeft,
+                  margin: const EdgeInsets.only(left: 20),
+                  child: const Text(
+                    "Here are few features :",
+                    style: TextStyle(
+                      fontFamily: 'Cera Pro',
+                      fontSize: 18,
+                      color: Pallete.mainFontColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
-              const Column(
-                children: [
-                  FeatureBox(
-                    color: Pallete.firstSuggestionBoxColor,
-                    headerText: "ChatGPT",
-                    descriptionText:
-                        "Elevate your organization and stay effortlessly informed with ChatGPT",
-                  ),
-                  FeatureBox(
-                    color: Pallete.secondSuggestionBoxColor,
-                    headerText: "Dall-E",
-                    descriptionText:
-                        "Unleash your creativity and bring your ideas to life with DALL·E",
-                  ),
-                  FeatureBox(
-                    color: Pallete.thirdSuggestionBoxColor,
-                    headerText: "Smart Voice Assistance",
-                    descriptionText:
-                        "Smart Voice Assistance. A helpful assistant for managing tasks and finding information quickly.",
-                  )
-                ],
-              )
+               Visibility(
+                visible: generatedContent==null,
+                 child: Column(
+                  children: [
+                    FeatureBox(
+                      color: Pallete.firstSuggestionBoxColor,
+                      headerText: "ChatGPT",
+                      descriptionText:
+                          "Elevate your organization and stay effortlessly informed with ChatGPT",
+                    ),
+                    FeatureBox(
+                      color: Pallete.secondSuggestionBoxColor,
+                      headerText: "Dall-E",
+                      descriptionText:
+                          "Unleash your creativity and bring your ideas to life with DALL·E",
+                    ),
+                    FeatureBox(
+                      color: Pallete.thirdSuggestionBoxColor,
+                      headerText: "Smart Voice Assistance",
+                      descriptionText:
+                          "Smart Voice Assistance. A helpful assistant for managing tasks and finding information quickly.",
+                    )
+                  ],
+                               ),
+               )
             ],
           ),
         ),
@@ -203,6 +211,20 @@ class _HomePageState extends State<HomePage> {
               await startListening();
             } else if (speechtoText.isListening) {
               final speech = await openAIService.isArtPromptAPI(lastWords);
+              if (speech.contains('https')) {
+                generatedImageUrl = speech;
+                generatedContent = null;
+                setState(() {
+                  
+                });
+              } else {
+                generatedImageUrl = null;
+                generatedContent = speech;
+                setState(() {
+                  
+                });
+                await systemSpeak(speech);
+              }
               await systemSpeak(speech);
               await stopListening();
             } else {
