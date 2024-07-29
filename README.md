@@ -37,6 +37,8 @@ For queries and conversational interactions, SKAI sends the recognized text to t
 
   - Users can request SKAI to generate images by describing what they want. The app sends these descriptions to the DALL·E API, receives the generated images, and displays them.
 
+
+## Screenshot
 <div align="center">
   <table>
     <tr>
