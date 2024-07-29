@@ -37,3 +37,24 @@ For queries and conversational interactions, SKAI sends the recognized text to t
 
   - Users can request SKAI to generate images by describing what they want. The app sends these descriptions to the DALL·E API, receives the generated images, and displays them.
 
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="https://raw.githubusercontent.com/ShantanuKH/SKAI/main/ScreeenShot/ss.jpg" alt="HomePage" height="325">
+        <br>
+        <b>Home Page</b>
+      </td>
+      
+  </table>
+</div>
+
+
+## 📧 Contact
+
+### Shantanu Khadse
+  
+- GitHub: [ShantanuKH](https://github.com/ShantanuKH)
+- Email: shantanukhadse784@gmail.com  
+- LinkedIn: [shantanukhadse](https://www.linkedin.com/in/shantanu-khadse-a62585230/)  
+
