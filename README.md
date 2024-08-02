@@ -1,7 +1,7 @@
 # SKAI
 SKAI is an innovative voice-assisted application that combines state-of-the-art AI technologies to offer a versatile and interactive user experience. The app is designed to be your personal assistant, capable of handling a range of tasks through voice commands and AI-driven functionalities.
 
-### Key Features
+### Key Features of SKAI
 1. Voice Interaction
 Voice Recognition: SKAI uses the speech_to_text package to transcribe spoken words into text. This feature allows users to interact with the app hands-free, issuing voice commands and receiving responses.
 Voice Feedback: With the flutter_tts package, SKAI converts text responses into spoken words, ensuring users get auditory feedback and information.
