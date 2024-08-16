@@ -8,7 +8,7 @@ Voice Feedback: With the flutter_tts package, SKAI converts text responses into 
 2. Smart Conversations with ChatGPT
 Conversational AI: Integrated with the ChatGPT API, SKAI can hold intelligent conversations. Whether you need answers to questions, help with tasks, or simply want to chat, SKAI leverages ChatGPT to provide relevant and coherent responses.
 3. Image Creation with DALL·E
-Image Generation: Utilizing the DALL·E API, SKAI can generate images based on textual descriptions provided by the user. This feature lets users create visual content from their imagination, turning descriptive text into detailed images.
+Image Generation: Utilizing the DALL·E API, SKAI can generate images based on textual descriptions provided by the user.
 
 ### Technologies and Dependencies
 Speech-to-Text: Converts spoken language into text for processing voice commands.
